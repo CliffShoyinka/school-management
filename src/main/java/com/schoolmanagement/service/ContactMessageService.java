@@ -1,5 +1,6 @@
 package com.schoolmanagement.service;
 
+import com.schoolmanagement.exception.ConflictException;
 import com.schoolmanagement.payload.request.ContactMessageRequest;
 import com.schoolmanagement.payload.response.ContactMessageResponse;
 import com.schoolmanagement.repository.ContactMessageRepository;
@@ -21,6 +22,6 @@ public class ContactMessageService {
         boolean isSameMessageWithSameEmailForToday =
                 contactMessageRepository.existsByEmailEqualsAndDateEquals(contactMessageRequest.getEmail(), LocalDate.now());
 
-        if (isSameMessageWithSameEmailForToday) throw new
+        if (isSameMessageWithSameEmailForToday) throw new ConflictException("asfasf");
     }
 }
