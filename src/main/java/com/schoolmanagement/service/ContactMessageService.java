@@ -20,5 +20,7 @@ public class ContactMessageService {
         //ayni kisi ayni gun icinde sadece 1 defa mesaj gonderebilsin
         boolean isSameMessageWithSameEmailForToday =
                 contactMessageRepository.existsByEmailEqualsAndDateEquals(contactMessageRequest.getEmail(), LocalDate.now());
+
+        if (isSameMessageWithSameEmailForToday) throw new
     }
 }
