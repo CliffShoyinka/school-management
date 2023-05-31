@@ -48,6 +48,9 @@ public class ContactMessageService {
 
                 //Idyi kullanmiyoruz cunku idyi oto generate kullandik
 
+        //20dk
+
+
 
     }
 }
