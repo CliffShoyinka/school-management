@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL) //Json icindeki null olanlarin gozukmemesini sagliyoruz
-public class ReponseMessage <E> {
+public class ResponseMessage<E> {
 
     private E object;
 

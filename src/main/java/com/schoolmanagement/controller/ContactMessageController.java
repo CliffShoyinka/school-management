@@ -2,12 +2,11 @@ package com.schoolmanagement.controller;
 
 import com.schoolmanagement.payload.request.ContactMessageRequest;
 import com.schoolmanagement.payload.response.ContactMessageResponse;
+import com.schoolmanagement.payload.response.ResponseMessage;
 import com.schoolmanagement.service.ContactMessageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -20,7 +19,7 @@ public class ContactMessageController {
 
     //NOT: save() ****************************
     @PostMapping("/save")
-    public RespsonseMessage<ContactMessageResponse> save(@Valid @RequestBody ContactMessageRequest contactMessageRequest) {
+    public ResponseMessage<ContactMessageResponse> save(@Valid @RequestBody ContactMessageRequest contactMessageRequest) {
 
         return contactMessageService.save(contactMessageRequest);
 
@@ -31,9 +30,43 @@ public class ContactMessageController {
 
 
     //NOT: getAll() **********************************
+    @GetMapping("/getAll")
+    public Page<ContactMessageResponse> getAll(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sort", defaultValue = "date") String sort,
+            @RequestParam(value = "type", defaultValue = "desc") String type
+            //pageable objenin create edilebilmesi icin butun datalar burada mevcut
+    ) {
+        return contactMessageService.getAll(page,size,sort,type);
+
+    } //bu bir response
 
     //NOT: searchByEmail() *********************
+    @GetMapping("/searchByEmail")
+    public Page<ContactMessageResponse> searchByEmail(
+            @RequestParam(value = "email") String email,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sort", defaultValue = "date") String sort,
+            @RequestParam(value = "type", defaultValue = "desc") String type
+    ) {
+
+        return contactMessageService.searchByEmail(email,page,size,sort,type);
+    }
 
     //NOT: searchBySubject() ***********************
+
+    @GetMapping("/searchBySubject")
+    public Page<ContactMessageResponse> searchBySubject(
+            @RequestParam(value = "subject") String subject,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sort", defaultValue = "date") String sort,
+            @RequestParam(value = "type", defaultValue = "desc") String type
+    ) {
+        return contactMessageService.searchBySubject(subject, page, size,sort, type);
+
+    }
 
 }
