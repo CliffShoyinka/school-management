@@ -9,8 +9,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(toBuilder = true)
 public class ContactMessageResponse implements Serializable {
 
@@ -19,6 +19,4 @@ public class ContactMessageResponse implements Serializable {
     private String subject;
     private String message;
     private LocalDate date;
-
-
 }

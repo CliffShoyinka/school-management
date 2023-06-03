@@ -1,5 +1,6 @@
 package com.schoolmanagement.service;
 
+
 import com.schoolmanagement.entity.concretes.ContactMessage;
 import com.schoolmanagement.exception.ConflictException;
 import com.schoolmanagement.payload.request.ContactMessageRequest;
@@ -19,59 +20,54 @@ import java.util.Objects;
 
 import static com.schoolmanagement.utils.Messages.ALREADY_SEND_A_MESSAGE_TODAY;
 
+
 @Service
-@RequiredArgsConstructor //final fieldlardan cons olusturuyor
+@RequiredArgsConstructor
 public class ContactMessageService {
 
-    private ContactMessageRepository contactMessageRepository;
+    private final ContactMessageRepository contactMessageRepository;
 
-    //NOT save() methodu **********************
+
+    // Not: save() methodu **********************************************************************
     public ResponseMessage<ContactMessageResponse> save(ContactMessageRequest contactMessageRequest) {
 
-        //ayni kisi ayni gun icinde sadece 1 defa mesaj gonderebilsin
-        boolean isSameMessageWithSameEmailForToday =
-                contactMessageRepository.existsByEmailEqualsAndDateEquals(contactMessageRequest.getEmail(), LocalDate.now());
+        // !!! ayni kisi ayni gun icinde sadece 1 defa mesaj gonderebilsin
+         boolean isSameMessageWithSameEmailForToday =
+                 contactMessageRepository.existsByEmailEqualsAndDateEquals(contactMessageRequest.getEmail(),
+                                                                            LocalDate.now());
 
-        if (isSameMessageWithSameEmailForToday) throw new ConflictException(String.format(ALREADY_SEND_A_MESSAGE_TODAY));
+         if(isSameMessageWithSameEmailForToday) throw new ConflictException(String.format(ALREADY_SEND_A_MESSAGE_TODAY));
 
-        //DTO-POJO donusumu
+         // !!! DTO-POJO donusumu ( odev )
+        ContactMessage contactMessage = createObject(contactMessageRequest);
+        ContactMessage savedDate = contactMessageRepository.save(contactMessage);
 
-        ContactMessage  contactMessage = createObject(contactMessageRequest);
-        ContactMessage savedDate =  contactMessageRepository.save(contactMessage); //save methodu bize kaydedecegimiz datayi donduruyor
-
-        return ResponseMessage.<ContactMessageResponse>builder()
-                .message("Contact message created successfully")
+          return ResponseMessage.<ContactMessageResponse>builder()
+                .message("Contact Message Created Successfully")
                 .httpStatus(HttpStatus.CREATED)
                 .object(createResponse(savedDate))
                 .build();
 
-        //ResponsMessage pojo, pojoya donusturmek istemedigimiz icin ona gore objenin icine parametre vermemiz gerekiyor, dtoya cevirmemiz lazim. objem burada setlendi.
-        //createResponse un oldugu yere gidicez oradan koseli parantezlerin icini doldurucaz
-                //tur donusum problemi generics yapilardan kaynakli bir hata var
-
-                //<~> ResponseMessage sinifindan alacagi parametrelerden birisi obje data turunde yani obje data turu neyse onu gonder demis oluyoruz.
-
     }
 
-    //DTO-POJO donusumu icin yardimci method
-    private ContactMessage createObject(ContactMessageRequest contactMessageRequest) {
+    // !!! DTO-POJO donusumu icin yardimci method
+    private ContactMessage createObject(ContactMessageRequest contactMessageRequest){
 
         return ContactMessage.builder()
-                .name(contactMessageRequest.getMessage()) //name kisminda builder vasitasiyla getter setterla ugrasmiyoruz. builder sayesinde sadece ismini belirledigimiz bir contact message olusturabiliriz.
-                .subject(contactMessageRequest.getSubject())  //builder sayesinde istedigimiz kadar datayi setleyip gonderebiliyoruz eger not null yoksa fieldlarin icerisinde. not null olanlari sadece setleyip gonderebiliriz.
+                .name(contactMessageRequest.getName())
+                .subject(contactMessageRequest.getSubject())
                 .message(contactMessageRequest.getMessage())
                 .email(contactMessageRequest.getEmail())
                 .date(LocalDate.now())
-                .build(); //build dedigimiz anda bize argumanlarla resetlenmis yeni bir contact message nesnesi olusturur
-
-                //Idyi kullanmiyoruz cunku idyi oto generate kullandik
+                .build();
 
     }
 
-    //!!! POJO - DTO donusumu icin yardimci method
+    // !!! POJO-DTO donusumu icin yardimci method
+    private ContactMessageResponse createResponse(ContactMessage contactMessage){
 
-    private ContactMessageResponse createResponse(ContactMessage contactMessage) {
         return ContactMessageResponse.builder()
+                .name(contactMessage.getName())
                 .subject(contactMessage.getSubject())
                 .message(contactMessage.getMessage())
                 .email(contactMessage.getEmail())
@@ -79,41 +75,40 @@ public class ContactMessageService {
                 .build();
     }
 
+    // Not: getAll() methodu **********************************************************************
     public Page<ContactMessageResponse> getAll(int page, int size, String sort, String type) {
 
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(sort).ascending()); //normalde ascending olarak calis ama hic bir sey girmediyse default da sortlamayi da dicending olarak yap diyecegiz
+        Pageable pageable = PageRequest.of(page,size, Sort.by(sort).ascending());
 
-        if (Objects.equals(type, "desc")) {
-
-            pageable = PageRequest.of(page, size, Sort.by(sort).descending()); //ikisini de descending olarak ayarladik
+        if(Objects.equals(type, "desc")) {
+            pageable = PageRequest.of(page,size,Sort.by(sort).descending());
         }
 
-        return contactMessageRepository.findAll(pageable).map(this::createResponse); //response olmasi lazim, pojolar geldi dto olmasi lazim // this kendinden onceki gelen datayi temsil ediyor
-        //return contactMessageRepository.findAll(pageable).map(r -> createResponse(r))
+        return contactMessageRepository.findAll(pageable).map(this::createResponse);
+        // return contactMessageRepository.findAll(pageable).map(r->createResponse(r));
     }
 
-    //NOT searchByEmail() methodu ***************************************************
+    // Not: searchByEmail() methodu **********************************************************************
     public Page<ContactMessageResponse> searchByEmail(String email, int page, int size, String sort, String type) {
-        Pageable pageable = PageRequest.of(page,size,Sort.by(sort).ascending());
-
-        if (Objects.equals(type, "desc")) {
-
-            pageable = PageRequest.of(page, size, Sort.by(sort).descending()); //ikisini de descending olarak ayarladik
+     Pageable pageable =  PageRequest.of(page,size,Sort.by(sort).ascending());
+        if(Objects.equals(type, "desc")) {
+            pageable = PageRequest.of(page,size,Sort.by(sort).descending());
         }
 
-        return contactMessageRepository.findByEmailEquals(email, pageable).map(this::createResponse); //findAllById pageable yapida calismiyor, pageable yapida calisan tek bir yapi var o da findAll methodu o zaman kendimiz yazicaz burayi
-        //map lazim burada burada bize pojo geliyor biz bunu istemiyoruz
+        return contactMessageRepository.findByEmailEquals(email, pageable).map(this::createResponse);
+
     }
 
-    //NOT searchBySubject() methodu ***************************************************
+    // Not: searchBySubject() methodu **********************************************************************
     public Page<ContactMessageResponse> searchBySubject(String subject, int page, int size, String sort, String type) {
 
-        Pageable pageable = PageRequest.of(page,size,Sort.by(sort).ascending());
-
-        if (Objects.equals(type, "desc")) {
-
-            pageable = PageRequest.of(page, size, Sort.by(sort).descending()); //ikisini de descending olarak ayarladik
+        Pageable pageable =  PageRequest.of(page,size,Sort.by(sort).ascending());
+        if(Objects.equals(type, "desc")) {
+            pageable = PageRequest.of(page,size,Sort.by(sort).descending());
         }
-        return contactMessageRepository.findBySubjectEquals(subject, pageable).map(this::createResponse);
+
+        return contactMessageRepository.findBySubjectEquals(subject,pageable).map(this::createResponse);
     }
+
+
 }

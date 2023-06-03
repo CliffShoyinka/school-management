@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-//Kullanicinin rolleri bu classin uzerinden setlenecek bu yuzden bu class in db ile iliskili olmasi gerekiyor
 @Entity
 @Table(name = "roles")
 @Data
@@ -21,7 +20,8 @@ public class UserRole {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Enumerated(EnumType.STRING) //enum typedan data almasi icin bunu kullaniyoruz
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private RoleType roleType;
+
 }
