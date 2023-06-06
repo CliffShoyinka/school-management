@@ -56,9 +56,24 @@ public class EducationTermController {
     }
 
     // Not :  Delete() *************************************************************************
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
+    @DeleteMapping("/delete/{id}") // http://localhost:8080/educationTerms/delete/1
+    public ResponseMessage<?> delete(@PathVariable Long id){
+        return educationTermService.delete(id);
+
+    }
+
 
 
     // Not :  UpdateById() ********************************************************************
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER')")
+    @PutMapping("/update/{id}")  // http://localhost:8080/educationTerms/update/1
+    public ResponseMessage<EducationTermResponse> update(@PathVariable Long id,
+                                                         @RequestBody @Valid EducationTermRequest educationTermRequest){
+        return educationTermService.update(id, educationTermRequest);
+
+    }
+
 
 
 

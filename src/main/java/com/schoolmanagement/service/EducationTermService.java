@@ -111,9 +111,73 @@ public class EducationTermService {
 
         return educationTermRepository.findAll(pageable).map(this::createEducationTermResponse);
     }
+
+
     // Not :  Delete() *************************************************************************
+    public ResponseMessage<?> delete(Long id) {
+
+        //!!! Acaba var mi ?? kontrolu
+
+        if(!educationTermRepository.existsById(id)){
+            throw new ResourceNotFoundException(String.format(Messages.EDUCATION_TERM_NOT_FOUND_MESSAGE,id));
+        }
+
+        educationTermRepository.deleteById(id);
+
+        return ResponseMessage.builder()
+                .message("Education term deleted successfully")
+                .httpStatus(HttpStatus.CREATED)
+                .build();
+    }
 
 
     // Not :  UpdateById() ********************************************************************
+    public ResponseMessage<EducationTermResponse> update(Long id, EducationTermRequest request) {
+
+        // !!! id kontrolu
+        if(!educationTermRepository.existsById(id)){
+            throw new ResourceNotFoundException(String.format(Messages.EDUCATION_TERM_NOT_FOUND_MESSAGE,id));
+        }
+
+        // !!! getStartDate ve lastRegistrationDate kontrolu
+        if(request.getStartDate()!=null && request.getLastRegistrationDate()!=null) {
+            if(request.getLastRegistrationDate().isAfter(request.getStartDate())) {
+                throw new ResourceNotFoundException(Messages.EDUCATION_START_DATE_IS_EARLIER_THAN_LAST_REGISTRATION_DATE);
+            }
+        }
+
+        // !!! startDate-endDate kontrolu
+        if(request.getStartDate()!= null && request.getEndDate()!=null){
+            if(request.getEndDate().isBefore(request.getStartDate())){
+                throw new ResourceNotFoundException(Messages.EDUCATION_END_DATE_IS_EARLIER_THAN_START_DATE);
+            }
+        }
+
+        ResponseMessage.ResponseMessageBuilder<EducationTermResponse> responseMessageBuilder =
+                ResponseMessage.builder();
+
+          EducationTerm updated = createUpdatedEducationTerm(id,request);
+          educationTermRepository.save(updated);
+
+          return responseMessageBuilder
+                  .object(createEducationTermResponse(updated))
+                  .message("Education Term Updated Successfully")
+                  .build();
+
+    }
+
+    private EducationTerm createUpdatedEducationTerm(Long id, EducationTermRequest request) {
+        return EducationTerm.builder()
+                .id(id)
+                .term(request.getTerm())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .lastRegistrationDate(request.getLastRegistrationDate())
+                .build();
+    }
+
+    // ---> EDUCATION-TERM-SERVICE <---
+    // ODEV-1 : ya yoksa kontrolleri method uzerinden cagrilmali
+    // ODEV-2 : save ve update methodalrindaki tarih kontrolleri ayri bir method uzerinden cagrilmali
 
 }
