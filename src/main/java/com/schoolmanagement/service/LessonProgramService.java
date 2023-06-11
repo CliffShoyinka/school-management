@@ -35,6 +35,7 @@ public class LessonProgramService {
     private final LessonService lessonService;
     private final LessonProgramDto lessonProgramDto;
     private final EducationTermService educationTermService;
+    private final StudentService studentService;
 
 
     // Not :  Save() *************************************************************************
@@ -180,6 +181,10 @@ public class LessonProgramService {
                 .lessonProgramId(lessonProgram.getId())
                 .lessonName(lessonProgram.getLesson())
                 //TODO Student yazilinca buraya ekleme yapilacak
+            /*    .students(lessonProgram.getStudents()
+                        .stream()
+                        .map() // TODO
+                        .collect(Collectors.toSet()))*/
                 .build();
     }
 
