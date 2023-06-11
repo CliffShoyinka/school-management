@@ -9,6 +9,7 @@ import com.schoolmanagement.payload.response.DeanResponse;
 import com.schoolmanagement.payload.response.ResponseMessage;
 import com.schoolmanagement.repository.DeanRepository;
 import com.schoolmanagement.utils.CheckParameterUpdateMethod;
+import com.schoolmanagement.utils.FieldControl;
 import com.schoolmanagement.utils.Messages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,17 +30,17 @@ import java.util.stream.Collectors;
 public class DeanService {
 
     private final DeanRepository deanRepository;
-    private final AdminService adminService;
     private final DeanDto deanDto;
     private final UserRoleService userRoleService;
     private final PasswordEncoder passwordEncoder;
+    private final FieldControl fieldControl;
 
 
     // Not: Save() *************************************************
     public ResponseMessage<DeanResponse> save(DeanRequest deanRequest) {
 
         //!!! Dublicate kontrolu
-        adminService.checkDuplicate(deanRequest.getUsername(),
+        fieldControl.checkDuplicate(deanRequest.getUsername(),
                 deanRequest.getSsn(),
                 deanRequest.getPhoneNumber());
 
@@ -93,7 +94,8 @@ public class DeanService {
             throw new ResourceNotFoundException(String.format(Messages.NOT_FOUND_USER2_MESSAGE, deanId));
         } else if(!CheckParameterUpdateMethod.checkParameter(dean.get(),newDean)) {
 
-            adminService.checkDuplicate(newDean.getUsername(),newDean.getSsn(), newDean.getPhoneNumber()); // tek parametre degistirildiginde senaryo postmande test edilmeli
+           // tek parametre degistirildiginde senaryo postmande test edilmeli
+            fieldControl.checkDuplicate(newDean.getUsername(),newDean.getSsn(), newDean.getPhoneNumber());
         }
 
         // !!! guncellenen yeni bilgiler ile Dean objesini kaydediyoruz
