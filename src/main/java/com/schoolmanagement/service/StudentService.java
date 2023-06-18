@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -259,5 +260,22 @@ public class StudentService {
                 .stream()
                 .map(this::createStudentResponse)
                 .collect(Collectors.toList());
+    }
+
+    public boolean existByUsername(String username) {
+        return studentRepository.existsByUsername(username);
+    }
+
+    public boolean existById(Long studentId) {
+        return studentRepository.existsById(studentId);
+    }
+
+    public List<Student> getStudentByIds(Long[] studentIds) {
+        return studentRepository.findByIdsEquals(studentIds);
+    }
+
+    public Optional<Student> getStudentByUsernameForOptional(String username) {
+
+        return studentRepository.findByUsernameEqualsForOptional(username);
     }
 }

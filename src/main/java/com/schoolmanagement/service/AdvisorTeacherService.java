@@ -117,4 +117,9 @@ public class AdvisorTeacherService {
     public Optional<AdvisorTeacher> getAdvisorTeacherById(Long id) {
         return advisorTeacherRepository.findById(id);
     }
+
+    public Optional<AdvisorTeacher> getAdvisorTeacherByUsername(String username) {
+
+        return advisorTeacherRepository.findByTeacher_UsernameEquals(username);
+    }
 }
