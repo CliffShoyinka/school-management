@@ -86,13 +86,17 @@ public class MeetService {
            LocalTime existingStartTime =  meet.getStartTime();
            LocalTime existingStopTime =  meet.getStopTime();
 
-           if(meet.getDate().equals(date) &&
-                   ((startTime.isAfter(existingStartTime) && startTime.isBefore(existingStopTime)) || // yeni gelen meetingin startTime bilgisi mevcut mettinglerden herhangi birinin startTim,e ve stopTime arasinda mi ???
-                           (stopTime.isAfter(existingStartTime) && stopTime.isBefore(existingStopTime)) || //  yeni gelen meetingin stopTime bilgisi mevcut mettinglerden herhangi birinin startTim,e ve stopTime arasinda mi ???
-                           (startTime.isBefore(existingStartTime) && stopTime.isAfter(existingStopTime)) ||
-                           (startTime.equals(existingStartTime) && stopTime.equals(existingStopTime)))){
-               throw new ConflictException(Messages.MEET_EXIST_MESSAGE);
-           }
+
+               if(meet.getDate().equals(date) &&
+                       ((startTime.isAfter(existingStartTime) && startTime.isBefore(existingStopTime)) || // yeni gelen meetingin startTime bilgisi mevcut mettinglerden herhangi birinin startTim,e ve stopTime arasinda mi ???
+                               (stopTime.isAfter(existingStartTime) && stopTime.isBefore(existingStopTime)) || //  yeni gelen meetingin stopTime bilgisi mevcut mettinglerden herhangi birinin startTim,e ve stopTime arasinda mi ???
+                               (startTime.isBefore(existingStartTime) && stopTime.isAfter(existingStopTime)) ||
+                               (startTime.equals(existingStartTime) && stopTime.equals(existingStopTime)))){
+                   //throw new ConflictException(Messages.MEET_EXIST_MESSAGE);
+                   throw new ConflictException("HATAAAAA");
+               }
+
+
        }
 
     }
@@ -170,7 +174,8 @@ public class MeetService {
     public ResponseMessage<MeetResponse> update(UpdateMeetRequest meetRequest, Long meetId) {
         // !!!  ODEV : save-update kontrol kisimlari ortak method uzerinden cagirilacak
         Meet getMeet = meetRepository.findById(meetId).orElseThrow(()->
-                new ResourceNotFoundException(String.format(Messages.MEET_NOT_FOUND_MESSAGE, meetId)));
+               new ResourceNotFoundException(String.format(Messages.MEET_NOT_FOUND_MESSAGE, meetId)));
+
 
         // !!! Time Control
         if (TimeControl.check(meetRequest.getStartTime(),meetRequest.getStopTime())) {
@@ -178,10 +183,17 @@ public class MeetService {
         }
 
         // !!! her ogrenci icin meet conflict kontrolu
-        for (Long studentId : meetRequest.getStudentIds()) {
-            checkMeetConflict(studentId,meetRequest.getDate(),meetRequest.getStartTime(),meetRequest.getStopTime());
+        // !!! if in icinde request den gelen meet ile orjinal meet objesinde date,startTime ve stoptime
+            // bilgilerinde degisiklik yapildiysa checkMeetConflict metoduna girmesi saglaniyor
+        if(!(getMeet.getDate().equals(meetRequest.getDate()) &&
+                getMeet.getStartTime().equals(meetRequest.getStartTime()) &&
+                getMeet.getStopTime().equals(meetRequest.getStopTime())) ){
+            for (Long studentId : meetRequest.getStudentIds()) {
+                checkMeetConflict(studentId,meetRequest.getDate(),meetRequest.getStartTime(),meetRequest.getStopTime());
+            }
         }
 
+        // TODO request'ten gelen id'lere ait ogrenci var mi kontrolu
         List<Student> students = studentService.getStudentByIds(meetRequest.getStudentIds());
         //!!! DTO--> POJO
          Meet meet = createUpdatedMeet(meetRequest,meetId);
