@@ -80,7 +80,7 @@ public class StudentInfoController {
     ){
         // Pageable obje olusturma islemini Service katinda yazilmasi best-practice
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        String username = (String) httpServletRequest.getAttribute("username");
+        String username = httpServletRequest.getHeader("username");
 
         Page<StudentInfoResponse> studentInfoResponse =  studentInfoService.getAllTeacher(pageable,username);
 
@@ -99,13 +99,13 @@ public class StudentInfoController {
     ){
         // Pageable obje olusturma islemini Service katinda yazilmasi best-practice
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        String username = (String) httpServletRequest.getAttribute("username");
+        String username = httpServletRequest.getHeader("username");
         Page<StudentInfoResponse> studentInfoResponse = studentInfoService.getAllStudentInfoByStudent(username,pageable);
         return ResponseEntity.ok(studentInfoResponse);
     }
 
     // Not: getStudentInfoByStudentId()*************************************************
-    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANTMANAGER','TEACHER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
     @GetMapping("/getByStudentId/{studentId}")
     public ResponseEntity<List<StudentInfoResponse>> getStudentId(@PathVariable Long studentId){
 
@@ -116,7 +116,7 @@ public class StudentInfoController {
 
 
     // Not: getStudentInfoById()*******************************************************
-    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANTMANAGER','TEACHER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER','TEACHER')")
     @GetMapping("/get/{id}")
     public ResponseEntity<StudentInfoResponse> get(@PathVariable Long id){
 
@@ -127,7 +127,7 @@ public class StudentInfoController {
 
     // Not: getAllWithPage()******************************************************
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANTMANAGER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MANAGER','ASSISTANT_MANAGER')")
     @GetMapping("/search")
     public Page<StudentInfoResponse> search(
             @RequestParam(value = "page") int page,

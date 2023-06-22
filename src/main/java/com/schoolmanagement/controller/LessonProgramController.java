@@ -67,7 +67,7 @@ public class LessonProgramController {
     @GetMapping("/getAllLessonProgramByTeacher")  //http://localhost:8080/lessonPrograms/getAllLessonProgramByTeacher
     public Set<LessonProgramResponse> getAllLessonProgramByTeacherId(HttpServletRequest httpServletRequest) {
 
-        String username = (String) httpServletRequest.getAttribute("username");
+        String username = httpServletRequest.getHeader("username");
         return lessonProgramService.getLessonProgramByTeacher(username);
 
     }
@@ -77,7 +77,7 @@ public class LessonProgramController {
     @GetMapping("/getAllLessonProgramByStudent") //http://localhost:8080/lessonPrograms/getAllLessonProgramByStudent
     public Set<LessonProgramResponse> getAllLessonProgramByStudent(HttpServletRequest httpServletRequest) {
 
-         String username = (String) httpServletRequest.getAttribute("username");
+         String username = httpServletRequest.getHeader("username");
          return lessonProgramService.getLessonProgramByStudent(username);
     }
 
@@ -92,10 +92,5 @@ public class LessonProgramController {
     ){
         return lessonProgramService.search(page,size,sort,type);
     }
-
-
-
-
-
 
 }
